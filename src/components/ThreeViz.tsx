@@ -107,6 +107,8 @@ export const ThreeViz: React.FC<ThreeVizProps> = ({ width, height }) => {
         controls.enableDamping = true;
         controls.autoRotate = true;
         controls.autoRotateSpeed = 1.0;
+        // Shift the center of rotation down, which moves the object UP in the view
+        controls.target.set(0, -4, 0);
         controlsRef.current = controls;
 
         // LIGHTS
@@ -167,7 +169,7 @@ export const ThreeViz: React.FC<ThreeVizProps> = ({ width, height }) => {
         scene.add(satelliteGroup);
 
         satellites.forEach((satData) => {
-            const satGeo = new THREE.IcosahedronGeometry(1.5, 0);
+            const satGeo = new THREE.IcosahedronGeometry(2.5, 0);
             const satMat = new THREE.MeshPhongMaterial({
                 color: satData.color,
                 emissive: 0x001133,
@@ -186,7 +188,7 @@ export const ThreeViz: React.FC<ThreeVizProps> = ({ width, height }) => {
             div.textContent = satData.name;
             // Adjust style slightly based on data if needed
             const label = new CSS2DObject(div);
-            label.position.set(0, 2.5, 0);
+            label.position.set(0, 4.0, 0);
             satMesh.add(label);
 
             satelliteGroup.add(satMesh);
