@@ -151,3 +151,66 @@ export function getMockNodes(): RawNode3DData[] {
         },
     ];
 }
+
+/**
+ * Calculate total CIFRB from all nodes
+ * @deprecated Use parseTransactionData instead if you have direct query results
+ */
+export function calculateTransactionTotals(nodes: RawNode3DData[]): { sumCIFRB: number; sumCIFRBIn10Min: number } {
+    let sumCIFRB = 0;
+    let sumCIFRBIn10Min = 0;
+
+    nodes.forEach(node => {
+        if (node.cifrb !== undefined) {
+            sumCIFRB += node.cifrb;
+        }
+        // For now, using cifrb as proxy for 10min data
+        // Update this when you have actual cifrbIn10Min field
+        if (node.cifrb !== undefined) {
+            sumCIFRBIn10Min += node.cifrb * 0.1; // Example: 10% of total
+        }
+    });
+
+    return {
+        sumCIFRB,
+        sumCIFRBIn10Min
+    };
+}
+
+/**
+ * Parse transaction data from DataFrame
+ * Expects a DataFrame with fields: sumCIFRB, sumCIFRBIn10Min
+ */
+export function parseTransactionData(dataFrames: DataFrame[]): { sumCIFRB: number; sumCIFRBIn10Min: number } {
+    // Default values
+    let sumCIFRB = 0;
+    let sumCIFRBIn10Min = 0;
+
+    if (!dataFrames || dataFrames.length === 0) {
+        return { sumCIFRB, sumCIFRBIn10Min };
+    }
+
+    // Look for transaction data frame
+    for (const frame of dataFrames) {
+        const sumCIFRBField = findField(frame, 'sumCIFRB');
+        const sumCIFRBIn10MinField = findField(frame, 'sumCIFRBIn10Min');
+
+        // If we found the fields, get the values
+        if (sumCIFRBField && frame.length > 0) {
+            sumCIFRB = Number(sumCIFRBField.values[0]) || 0;
+        }
+        if (sumCIFRBIn10MinField && frame.length > 0) {
+            sumCIFRBIn10Min = Number(sumCIFRBIn10MinField.values[0]) || 0;
+        }
+
+        // If we found both fields, we can stop searching
+        if (sumCIFRBField && sumCIFRBIn10MinField) {
+            break;
+        }
+    }
+
+    return {
+        sumCIFRB,
+        sumCIFRBIn10Min
+    };
+}

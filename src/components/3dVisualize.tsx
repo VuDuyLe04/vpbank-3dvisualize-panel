@@ -5,12 +5,14 @@ import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRe
 import { css } from '@emotion/css';
 import { RawNode3DData } from '../types';
 import { createNodeMesh, createNodeLabelHTML, getNodeSize } from './Node3D';
+import { InfoPanel } from './InfoPanel';
 
 interface ThreeVisualize3DProps {
     width: number;
     height: number;
     nodes: RawNode3DData[];
     numberOfLayers: number;
+    transactionData: { sumCIFRB: number; sumCIFRBIn10Min: number };
 }
 
 const styles = {
@@ -23,7 +25,7 @@ const styles = {
   `,
 };
 
-export const ThreeVisualize3D: React.FC<ThreeVisualize3DProps> = ({ width, height, nodes, numberOfLayers }) => {
+export const ThreeVisualize3D: React.FC<ThreeVisualize3DProps> = ({ width, height, nodes, numberOfLayers, transactionData }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
     const labelRendererRef = useRef<CSS2DRenderer | null>(null);
@@ -296,7 +298,14 @@ export const ThreeVisualize3D: React.FC<ThreeVisualize3DProps> = ({ width, heigh
 
     }, [nodes, numberOfLayers]); // Update only when data changes
 
-    return <div ref={containerRef} className={styles.container} />;
+    return (
+        <div ref={containerRef} className={styles.container}>
+            <InfoPanel
+                sumCIFRB={transactionData.sumCIFRB}
+                sumCIFRBIn10Min={transactionData.sumCIFRBIn10Min}
+            />
+        </div>
+    );
 };
 
 /**

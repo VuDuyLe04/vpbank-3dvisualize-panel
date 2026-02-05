@@ -1,4 +1,3 @@
-import { DataFrame } from '@grafana/data';
 
 export type NodeSize = 'sm' | 'md' | 'lg';
 
@@ -14,6 +13,8 @@ export interface RawNode3DData {
   transactionsIn10Min?: number;
 }
 
-export interface GraphFrame {
-  nodes: DataFrame[];
+export interface RawCIFRBData {
+  sumCIFRB: number;
+  sumCIFRBIn10Min: number;
 }
+
