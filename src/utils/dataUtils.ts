@@ -214,3 +214,41 @@ export function parseTransactionData(dataFrames: DataFrame[]): { sumCIFRB: numbe
         sumCIFRBIn10Min
     };
 }
+
+/**
+ * Parse transactions data from DataFrame
+ * Expects a DataFrame with fields: sumTransactions, sumTransactionsIn10Min
+ */
+export function parseTransactionsData(dataFrames: DataFrame[]): { sumTransactions: number; sumTransactionsIn10Min: number } {
+    // Default values
+    let sumTransactions = 0;
+    let sumTransactionsIn10Min = 0;
+
+    if (!dataFrames || dataFrames.length === 0) {
+        return { sumTransactions, sumTransactionsIn10Min };
+    }
+
+    // Look for transactions data frame
+    for (const frame of dataFrames) {
+        const sumTransactionsField = findField(frame, 'sumTransactions');
+        const sumTransactionsIn10MinField = findField(frame, 'sumTransactionsIn10Min');
+
+        // If we found the fields, get the values
+        if (sumTransactionsField && frame.length > 0) {
+            sumTransactions = Number(sumTransactionsField.values[0]) || 0;
+        }
+        if (sumTransactionsIn10MinField && frame.length > 0) {
+            sumTransactionsIn10Min = Number(sumTransactionsIn10MinField.values[0]) || 0;
+        }
+
+        // If we found both fields, we can stop searching
+        if (sumTransactionsField && sumTransactionsIn10MinField) {
+            break;
+        }
+    }
+
+    return {
+        sumTransactions,
+        sumTransactionsIn10Min
+    };
+}

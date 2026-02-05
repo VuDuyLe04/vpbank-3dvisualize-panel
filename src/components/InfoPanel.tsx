@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { css } from '@emotion/css';
-
-interface InfoPanelProps {
-    sumCIFRB: number;
-    sumCIFRBIn10Min: number;
-}
+import { RawCIFRBData } from 'types';
 
 const styles = {
     panel: css`
@@ -14,16 +10,16 @@ const styles = {
         background: rgba(0, 20, 40, 0.85);
         border: 1px solid #0099FF;
         border-radius: 8px;
-        padding: 16px 20px;
+        padding: 20px 26px;
         color: #fff;
         font-family: 'Roboto', 'Arial', sans-serif;
-        min-width: 280px;
+        min-width: 340px;
         box-shadow: 0 0 20px rgba(0, 153, 255, 0.4);
         z-index: 1000;
     `,
     row: css`
-        margin-bottom: 12px;
-        font-size: 14px;
+        margin-bottom: 14px;
+        font-size: 15px;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -40,7 +36,7 @@ const styles = {
     value: css`
         color: #ffffff;
         font-weight: 600;
-        font-size: 15px;
+        font-size: 16px;
     `,
     divider: css`
         height: 1px;
@@ -76,7 +72,7 @@ function formatDateTime(date: Date): string {
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
-export const InfoPanel: React.FC<InfoPanelProps> = ({ sumCIFRB, sumCIFRBIn10Min }) => {
+export const InfoPanel: React.FC<RawCIFRBData> = ({ sumCIFRB, sumCIFRBIn10Min }) => {
     const [currentTime, setCurrentTime] = useState(new Date());
 
     // Update time every second
@@ -91,7 +87,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({ sumCIFRB, sumCIFRBIn10Min 
     return (
         <div className={styles.panel}>
             <div className={styles.row}>
-                <span className={styles.label}>Date / Time:</span>
+                <span className={styles.label}>Date Time:</span>
                 <span className={styles.value}>{formatDateTime(currentTime)}</span>
             </div>
 

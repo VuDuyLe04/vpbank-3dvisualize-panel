@@ -18,3 +18,7 @@ export interface RawCIFRBData {
   sumCIFRBIn10Min: number;
 }
 
+export interface RawTransactionsData {
+  sumTransactions: number;
+  sumTransactionsIn10Min: number;
+}

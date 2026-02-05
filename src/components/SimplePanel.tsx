@@ -5,7 +5,7 @@ import { css, cx } from '@emotion/css';
 import { useStyles2 } from '@grafana/ui';
 import { PanelDataErrorView } from '@grafana/runtime';
 import { ThreeVisualize3D } from './3dVisualize';
-import { parseNodesFromDataFrame, parseTransactionData } from '../utils/dataUtils';
+import { parseNodesFromDataFrame, parseTransactionData, parseTransactionsData } from '../utils/dataUtils';
 
 interface Props extends PanelProps<TopologyOptions> { }
 
@@ -42,6 +42,11 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height, fie
     return parseTransactionData(data.series);
   }, [data.series]);
 
+  // Parse transactions data from Grafana data
+  const transactionsData = useMemo(() => {
+    return parseTransactionsData(data.series);
+  }, [data.series]);
+
   // Show error if no data or no nodes
   if (data.series.length === 0 || nodes.length === 0) {
     return <PanelDataErrorView fieldConfig={fieldConfig} panelId={id} data={data} needsStringField />;
@@ -63,6 +68,7 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height, fie
         nodes={nodes}
         numberOfLayers={options.numberOfLayers}
         transactionData={transactionData}
+        transactionsData={transactionsData}
       />
     </div>
   );

@@ -6,6 +6,7 @@ import { css } from '@emotion/css';
 import { RawNode3DData } from '../types';
 import { createNodeMesh, createNodeLabelHTML, getNodeSize } from './Node3D';
 import { InfoPanel } from './InfoPanel';
+import { TransactionPanel } from './TransactionPanel';
 
 interface ThreeVisualize3DProps {
     width: number;
@@ -13,6 +14,7 @@ interface ThreeVisualize3DProps {
     nodes: RawNode3DData[];
     numberOfLayers: number;
     transactionData: { sumCIFRB: number; sumCIFRBIn10Min: number };
+    transactionsData: { sumTransactions: number; sumTransactionsIn10Min: number };
 }
 
 const styles = {
@@ -25,7 +27,7 @@ const styles = {
   `,
 };
 
-export const ThreeVisualize3D: React.FC<ThreeVisualize3DProps> = ({ width, height, nodes, numberOfLayers, transactionData }) => {
+export const ThreeVisualize3D: React.FC<ThreeVisualize3DProps> = ({ width, height, nodes, numberOfLayers, transactionData, transactionsData }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
     const labelRendererRef = useRef<CSS2DRenderer | null>(null);
@@ -303,6 +305,10 @@ export const ThreeVisualize3D: React.FC<ThreeVisualize3DProps> = ({ width, heigh
             <InfoPanel
                 sumCIFRB={transactionData.sumCIFRB}
                 sumCIFRBIn10Min={transactionData.sumCIFRBIn10Min}
+            />
+            <TransactionPanel
+                sumTransactions={transactionsData.sumTransactions}
+                sumTransactionsIn10Min={transactionsData.sumTransactionsIn10Min}
             />
         </div>
     );
