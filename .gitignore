@@ -28,7 +28,8 @@ lib-cov
 coverage
 
 # Compiled binary addons (https://nodejs.org/api/addons.html)
-dist/
+# NOTE: dist/ is NOT ignored for Grafana plugins - it must be committed!
+# The dist/ folder contains the built plugin code that Grafana needs to load
 artifacts/
 work/
 ci/
