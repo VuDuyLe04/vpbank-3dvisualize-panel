@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { PanelProps } from '@grafana/data';
-import { SimpleOptions } from 'types';
+import { Options as TopologyOptions } from '../config/panelCfg';
 import { css, cx } from '@emotion/css';
 import { useStyles2 } from '@grafana/ui';
 import { PanelDataErrorView } from '@grafana/runtime';
-import { ThreeViz } from './ThreeViz';
+import { ThreeVisualize3D } from './3dVisualize';
+import { parseNodesFromDataFrame } from '../utils/dataUtils';
 
-interface Props extends PanelProps<SimpleOptions> { }
+interface Props extends PanelProps<TopologyOptions> { }
 
 const getStyles = () => {
   return {
@@ -31,7 +32,13 @@ const getStyles = () => {
 export const SimplePanel: React.FC<Props> = ({ options, data, width, height, fieldConfig, id }) => {
   const styles = useStyles2(getStyles);
 
-  if (data.series.length === 0) {
+  // Parse nodes from Grafana data
+  const nodes = useMemo(() => {
+    return parseNodesFromDataFrame(data.series);
+  }, [data.series]);
+
+  // Show error if no data or no nodes
+  if (data.series.length === 0 || nodes.length === 0) {
     return <PanelDataErrorView fieldConfig={fieldConfig} panelId={id} data={data} needsStringField />;
   }
 
@@ -45,7 +52,13 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height, fie
         `
       )}
     >
-      <ThreeViz width={width} height={height} />
+      <ThreeVisualize3D
+        width={width}
+        height={height}
+        nodes={nodes}
+        numberOfLayers={options.numberOfLayers}
+      />
     </div>
   );
 };
+

@@ -1,7 +1,19 @@
-type SeriesSize = 'sm' | 'md' | 'lg';
+import { DataFrame } from '@grafana/data';
 
-export interface SimpleOptions {
-  text: string;
-  showSeriesCount: boolean;
-  seriesCountSize: SeriesSize;
+export type NodeSize = 'sm' | 'md' | 'lg';
+
+export interface RawNode3DData {
+  id: string;
+  label: string;
+  layerOrder: number;
+  size: NodeSize;
+  isCenter?: boolean;
+  cifrb?: number;
+  ccu?: number;
+  transactions?: number;
+  transactionsIn10Min?: number;
+}
+
+export interface GraphFrame {
+  nodes: DataFrame[];
 }

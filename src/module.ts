@@ -1,40 +1,22 @@
-import { PanelPlugin } from '@grafana/data';
-import { SimpleOptions } from './types';
+import { FieldConfigProperty, PanelPlugin } from '@grafana/data';
 import { SimplePanel } from './components/SimplePanel';
+import { Options as TopologyOptions } from './config/panelCfg';
 
-export const plugin = new PanelPlugin<SimpleOptions>(SimplePanel).setPanelOptions((builder) => {
-  return builder
-    .addTextInput({
-      path: 'text',
-      name: 'Simple text option',
-      description: 'Description of panel option',
-      defaultValue: 'Default value of text input option',
-    })
-    .addBooleanSwitch({
-      path: 'showSeriesCount',
-      name: 'Show series counter',
-      defaultValue: false,
-    })
-    .addRadio({
-      path: 'seriesCountSize',
-      defaultValue: 'sm',
-      name: 'Series counter size',
+export const plugin = new PanelPlugin<TopologyOptions>(SimplePanel)
+  .useFieldConfig({
+    disableStandardOptions: Object.values(FieldConfigProperty).filter((v) => v !== FieldConfigProperty.Links),
+  })
+  .setPanelOptions((builder, context) => {
+    builder.addNumberInput({
+      path: 'numberOfLayers',
+      name: 'Number of Layers',
+      description: 'Configure the number of layers for the 3D visualization',
+      defaultValue: 3,
       settings: {
-        options: [
-          {
-            value: 'sm',
-            label: 'Small',
-          },
-          {
-            value: 'md',
-            label: 'Medium',
-          },
-          {
-            value: 'lg',
-            label: 'Large',
-          },
-        ],
+        min: 1,
+        max: 10,
+        step: 1,
+        integer: true,
       },
-      showIf: (config) => config.showSeriesCount,
     });
-});
+  });
