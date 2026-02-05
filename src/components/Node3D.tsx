@@ -26,7 +26,8 @@ export function getNodeSize(size: string, isCenter: boolean = false): number {
  * Get node color based on whether it's a center node
  */
 export function getNodeColor(isCenter: boolean): number {
-    return isCenter ? 0x00aaff : 0x00ffff;
+    // Professional tech blue - sophisticated IT look
+    return isCenter ? 0x0099FF : 0x0099FF;
 }
 
 /**
@@ -36,18 +37,36 @@ export function createNodeMesh(nodeData: RawNode3DData): THREE.Mesh {
     const size = getNodeSize(nodeData.size, nodeData.isCenter);
     const color = getNodeColor(nodeData.isCenter || false);
 
-    // Higher subdivision for rounder appearance
-    const geometry = new THREE.IcosahedronGeometry(size, 2);
+    // Create a group to hold the main mesh
+    const group = new THREE.Group() as any;
+
+    // Main mesh - solid with transparency for softer look
+    const geometry = new THREE.IcosahedronGeometry(size, 4);
     const material = new THREE.MeshPhongMaterial({
         color: color,
-        emissive: 0x001133,
-        wireframe: true,
+        emissive: color,
+        emissiveIntensity: 0.3,
+        transparent: true,
+        opacity: 0.8,
+        wireframe: false,
     });
 
     const mesh = new THREE.Mesh(geometry, material);
-    mesh.userData = { nodeData }; // Store node data for later use
+    group.add(mesh);
 
-    return mesh;
+    // Add wireframe overlay for detail
+    const wireframeGeo = new THREE.EdgesGeometry(geometry);
+    const wireframeMat = new THREE.LineBasicMaterial({
+        color: color,
+        transparent: true,
+        opacity: 0.4,
+    });
+    const wireframe = new THREE.LineSegments(wireframeGeo, wireframeMat);
+    group.add(wireframe);
+
+    group.userData = { nodeData }; // Store node data for later use
+
+    return group as any;
 }
 
 /**
@@ -56,21 +75,21 @@ export function createNodeMesh(nodeData: RawNode3DData): THREE.Mesh {
 export function createNodeLabelHTML(nodeData: RawNode3DData): HTMLDivElement {
     const div = document.createElement('div');
     div.style.cssText = `
-    background: ${nodeData.isCenter ? 'rgba(10, 20, 40, 0.85)' : 'rgba(0, 100, 255, 0.7)'};
-    border: 1px solid ${nodeData.isCenter ? '#00aaff' : '#00ffff'};
+    background: ${nodeData.isCenter ? 'rgba(0, 40, 120, 0.9)' : 'rgba(0, 80, 200, 0.85)'};
+    border: 1px solid ${nodeData.isCenter ? '#00e5ff' : '#00ffff'};
     color: #fff;
-    padding: ${nodeData.isCenter ? '10px 12px' : '6px 10px'};
-    font-family: 'Roboto', monospace;
-    font-size: ${nodeData.isCenter ? '11px' : '9px'};
+    padding: ${nodeData.isCenter ? '12px 14px' : '8px 12px'};
+    font-family: 'Roboto', 'Arial', sans-serif;
+    font-size: ${nodeData.isCenter ? '15px' : '12px'};
     border-radius: ${nodeData.isCenter ? '6px' : '4px'};
-    box-shadow: 0 0 ${nodeData.isCenter ? '12px' : '8px'} rgba(0, ${nodeData.isCenter ? '100' : '255'}, 255, ${nodeData.isCenter ? '0.3' : '0.5'});
+    box-shadow: 0 0 ${nodeData.isCenter ? '15px' : '12px'} rgba(0, 229, 255, ${nodeData.isCenter ? '0.7' : '0.6'});
     white-space: nowrap;
     pointer-events: none;
     text-align: center;
   `;
 
     // Build label content
-    let content = `<div style="font-weight: bold; margin-bottom: ${nodeData.isCenter ? '6px' : '3px'};">${nodeData.label}</div>`;
+    let content = `<div style="font-weight: bold; margin-bottom: ${nodeData.isCenter ? '10px' : '3px'};">${nodeData.label}</div>`;
 
     // Add metrics if available
     const metrics: string[] = [];
@@ -88,7 +107,7 @@ export function createNodeLabelHTML(nodeData: RawNode3DData): HTMLDivElement {
     }
 
     if (metrics.length > 0) {
-        const fontSize = nodeData.isCenter ? '10px' : '8px';
+        const fontSize = nodeData.isCenter ? '13px' : '11px';
         const metricsHTML = metrics.map(m => `<div style="font-size: ${fontSize}; opacity: 0.9; margin-top: 1px;">${m}</div>`).join('');
         content += metricsHTML;
     }

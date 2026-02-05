@@ -72,10 +72,10 @@ export const ThreeVisualize3D: React.FC<ThreeVisualize3DProps> = ({ width, heigh
         controls.target.set(0, -4, 0);
         controlsRef.current = controls;
 
-        // LIGHTS
-        const ambientLight = new THREE.AmbientLight(0x404040, 2);
+        // LIGHTS - Increased intensity for brighter nodes
+        const ambientLight = new THREE.AmbientLight(0x606060, 3);
         scene.add(ambientLight);
-        const pointLight = new THREE.PointLight(0xffffff, 2, 100);
+        const pointLight = new THREE.PointLight(0xffffff, 3, 100);
         pointLight.position.set(20, 20, 20);
         scene.add(pointLight);
 
@@ -254,7 +254,7 @@ export const ThreeVisualize3D: React.FC<ThreeVisualize3DProps> = ({ width, heigh
         const maxLayer = Math.max(numberOfLayers, ...Array.from(nodesByLayer.keys()));
         for (let i = 1; i <= maxLayer; i++) {
             const radius = 15 + (i - 1) * 7;
-            const ring = createRing(radius, i % 2 === 0 ? 0x0088ff : 0x00ffff);
+            const ring = createRing(radius, 0x0099FF);
             ringsGroup.add(ring);
         }
 
