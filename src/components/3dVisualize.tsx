@@ -1,6 +1,6 @@
 import React, { useRef, useLayoutEffect, useEffect } from 'react';
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls';
 import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer';
 import { css } from '@emotion/css';
 import { RawNode3DData } from '../types';
@@ -33,7 +33,7 @@ export const ThreeVisualize3D: React.FC<ThreeVisualize3DProps> = ({ width, heigh
     const labelRendererRef = useRef<CSS2DRenderer | null>(null);
     const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
     const sceneRef = useRef<THREE.Scene | null>(null);
-    const controlsRef = useRef<OrbitControls | null>(null);
+    const controlsRef = useRef<TrackballControls | null>(null);
     const frameIdRef = useRef<number>(0);
     const nodeGroupRef = useRef<THREE.Group | null>(null);
     const ringsGroupRef = useRef<THREE.Group | null>(null);
@@ -68,11 +68,13 @@ export const ThreeVisualize3D: React.FC<ThreeVisualize3DProps> = ({ width, heigh
         containerRef.current.appendChild(labelRenderer.domElement);
         labelRendererRef.current = labelRenderer;
 
-        // CONTROLS
-        const controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.autoRotate = true;
-        controls.autoRotateSpeed = 1.0;
+        // CONTROLS - Full 3D rotation with TrackballControls
+        const controls = new TrackballControls(camera, renderer.domElement);
+        controls.rotateSpeed = 1.5;
+        controls.zoomSpeed = 1.2;
+        controls.panSpeed = 0.8;
+        controls.dynamicDampingFactor = 0.2;
+        controls.staticMoving = false;
         controls.target.set(0, -4, 0);
         controlsRef.current = controls;
 
