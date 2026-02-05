@@ -258,16 +258,28 @@ export const ThreeVisualize3D: React.FC<ThreeVisualize3DProps> = ({ width, heigh
             ringsGroup.add(ring);
         }
 
+        // Use a simple fixed offset per layer for clean, predictable distribution
+        // 72 degrees (360/5) creates a nice spiral pattern when viewed from above
+        const LAYER_OFFSET_ANGLE = (2 * Math.PI) / 5; // 72 degrees in radians
+        const layerOffsets = new Map<number, number>();
+
+        const sortedLayers = Array.from(nodesByLayer.keys()).sort((a, b) => a - b);
+        sortedLayers.forEach((layer, index) => {
+            // Each layer offset by a fixed angle, creating a spiral/staggered effect
+            layerOffsets.set(layer, index * LAYER_OFFSET_ANGLE);
+        });
+
         // Render layer nodes
         nodesByLayer.forEach((nodesInLayer, layerIndex) => {
             const radius = 15 + (layerIndex - 1) * 7;
             const angleStep = (2 * Math.PI) / nodesInLayer.length;
+            const layerOffset = layerOffsets.get(layerIndex) || 0;
 
             nodesInLayer.forEach((nodeData, index) => {
                 const mesh = createNodeMesh(nodeData);
 
-                // Calculate position on circle
-                const angle = angleStep * index;
+                // Calculate position on circle with layer offset
+                const angle = angleStep * index + layerOffset;
                 const x = Math.cos(angle) * radius;
                 const z = Math.sin(angle) * radius;
                 mesh.position.set(x, 0, z);

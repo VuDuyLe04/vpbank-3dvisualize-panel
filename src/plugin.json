@@ -1,13 +1,15 @@
 {
   "$schema": "https://raw.githubusercontent.com/grafana/grafana/main/docs/sources/developers/plugins/plugin.schema.json",
   "type": "panel",
-  "name": "3d-Visualize",
-  "id": "levd-3dvisualize-panel",
+  "name": "3D-Visualize",
+  "id": "vpbank-3dvisualize-panel",
   "info": {
-    "keywords": ["panel"],
-    "description": "",
+    "keywords": [
+      "panel"
+    ],
+    "description": "3D Visualize",
     "author": {
-      "name": "Le vd"
+      "name": "VPBank"
     },
     "logos": {
       "small": "img/logo.svg",
