@@ -40,15 +40,45 @@ export function createNodeMesh(nodeData: RawNode3DData): THREE.Mesh {
     // Create a group to hold the main mesh
     const group = new THREE.Group() as any;
 
-    // Main mesh - solid with transparency for softer look
+    // Main mesh - solid with transparency for softer look and gradient shading
     const geometry = new THREE.IcosahedronGeometry(size, 4);
+
+    // Add vertex colors for left-to-right gradient
+    const colors: number[] = [];
+    const positions = geometry.attributes.position;
+    const tempColor = new THREE.Color();
+
+    for (let i = 0; i < positions.count; i++) {
+        const x = positions.getX(i);
+
+        // Calculate gradient based on x position (left to right)
+        // Normalize x to range [0, 1] where 0 is left (dark) and 1 is right (light)
+        const normalizedX = (x + size) / (size * 2);
+
+        // Create gradient from dark to light
+        // Left side: darker blue (factor 0.3) - Increased contrast
+        // Right side: lighter blue (factor 1.3)
+        const gradientFactor = 0.3 + normalizedX * 1.0;
+
+        // Apply gradient to the base color
+        tempColor.setHex(color);
+        tempColor.multiplyScalar(gradientFactor);
+
+        colors.push(tempColor.r, tempColor.g, tempColor.b);
+    }
+
+    geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+    // Use MeshPhongMaterial for better tech-look lighting response
     const material = new THREE.MeshPhongMaterial({
-        color: color,
-        emissive: color,
-        emissiveIntensity: 0.3,
+        color: 0xffffff, // White base to let vertex colors show through fully
+        emissive: 0x000000, // No emissive to allow dark shading to show
+        specular: 0x666666, // Add some specular shine
+        shininess: 40,
         transparent: true,
-        opacity: 0.8,
-        wireframe: false,
+        opacity: 0.9,
+        vertexColors: true, // Enable vertex colors
+        flatShading: false,
     });
 
     const mesh = new THREE.Mesh(geometry, material);
