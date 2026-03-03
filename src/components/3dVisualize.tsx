@@ -243,10 +243,10 @@ export const ThreeVisualize3D: React.FC<ThreeVisualize3DProps> = ({ width, heigh
                 (coreInner as any).isCore = true;
             }
 
-            // Add label sads
+            // Add label
             const labelDiv = createNodeLabelHTML(nodeData);
             const label = new CSS2DObject(labelDiv);
-            label.position.set(0, getNodeSize(nodeData.size, nodeData.isCenter) + 3, 0);
+            label.position.set(0, getNodeSize(nodeData.size, nodeData.isCenter) + 6, 0);
             mesh.add(label);
 
             nodeGroup.add(mesh);
@@ -293,7 +293,7 @@ export const ThreeVisualize3D: React.FC<ThreeVisualize3DProps> = ({ width, heigh
                 // Add label
                 const labelDiv = createNodeLabelHTML(nodeData);
                 const label = new CSS2DObject(labelDiv);
-                label.position.set(0, getNodeSize(nodeData.size, nodeData.isCenter) + 2.5, 0);
+                label.position.set(0, getNodeSize(nodeData.size, nodeData.isCenter) + 5, 0);
                 mesh.add(label);
 
                 nodeGroup.add(mesh);
@@ -307,10 +307,14 @@ export const ThreeVisualize3D: React.FC<ThreeVisualize3DProps> = ({ width, heigh
             <InfoPanel
                 sumCIFRB={transactionData.sumCIFRB}
                 sumCIFRBIn10Min={transactionData.sumCIFRBIn10Min}
+                containerWidth={width}
+                containerHeight={height}
             />
             <TransactionPanel
                 sumTransactions={transactionsData.sumTransactions}
                 sumTransactionsIn10Min={transactionsData.sumTransactionsIn10Min}
+                containerWidth={width}
+                containerHeight={height}
             />
         </div>
     );

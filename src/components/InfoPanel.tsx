@@ -2,74 +2,99 @@ import React, { useState, useEffect } from 'react';
 import { css } from '@emotion/css';
 import { RawCIFRBData } from 'types';
 
-const styles = {
-    panel: css`
-        position: absolute;
-        top: 20px;
-        left: 20px;
-        background: rgba(0, 20, 40, 0.85);
-        border: 1px solid #0099FF;
-        border-radius: 8px;
-        padding: 20px 26px;
-        color: #fff;
-        font-family: 'Roboto', 'Arial', sans-serif;
-        width: clamp(280px, 25vw, 400px);
-        max-width: calc(100vw - 40px);
-        box-shadow: 0 0 20px rgba(0, 153, 255, 0.4);
-        z-index: 1000;
+interface InfoPanelProps extends RawCIFRBData {
+    containerWidth?: number;
+    containerHeight?: number;
+}
 
-        @media (max-width: 768px) {
-            width: clamp(240px, 90vw, 340px);
-            left: 10px;
-            top: 10px;
-            padding: 16px 20px;
-        }
+const getPanelStyles = (containerWidth: number = 1200, containerHeight: number = 800) => {
+    // Calculate responsive values based on container size
+    const isSmall = containerWidth < 600;
+    const isMedium = containerWidth >= 600 && containerWidth < 900;
+    const isTiny = containerWidth < 400;
 
-        @media (max-width: 480px) {
-            width: calc(100vw - 20px);
-            left: 10px;
-            padding: 12px 16px;
-        }
-    `,
-    row: css`
-        margin-bottom: 14px;
-        font-size: clamp(13px, 2.5vw, 15px);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 8px;
+    // Dynamic sizing - significantly reduced
+    const panelWidth = isTiny ? Math.min(containerWidth * 0.45, 160)
+        : isSmall ? Math.min(containerWidth * 0.35, 200)
+            : isMedium ? Math.min(containerWidth * 0.25, 240)
+                : Math.min(containerWidth * 0.18, 280);
 
-        &:last-child {
-            margin-bottom: 0;
-        }
+    const padding = isTiny ? '6px 8px'
+        : isSmall ? '8px 10px'
+            : isMedium ? '10px 14px'
+                : '12px 16px';
 
-        @media (max-width: 768px) {
-            margin-bottom: 10px;
-            flex-wrap: wrap;
-        }
-    `,
-    label: css`
-        color: #88ccff;
-        font-weight: 500;
-        white-space: nowrap;
-        flex-shrink: 0;
-    `,
-    value: css`
-        color: #ffffff;
-        font-weight: 600;
-        font-size: clamp(14px, 3vw, 16px);
-        text-align: right;
-        word-break: break-word;
-    `,
-    divider: css`
-        height: 1px;
-        background: rgba(0, 153, 255, 0.3);
-        margin: 8px 0;
+    const fontSize = isTiny ? 10 : isSmall ? 11 : isMedium ? 12 : 13;
+    const valueFontSize = isTiny ? 11 : isSmall ? 12 : isMedium ? 13 : 14;
 
-        @media (max-width: 768px) {
-            margin: 6px 0;
-        }
-    `,
+    return {
+        panel: css`
+            position: absolute;
+            top: ${isTiny ? 6 : 8}px;
+            left: ${isTiny ? 6 : 8}px;
+            background: rgba(0, 20, 40, 0.9);
+            border: 1px solid #0099FF;
+            border-radius: ${isTiny ? 3 : 4}px;
+            padding: ${padding};
+            color: #fff;
+            font-family: 'Roboto', 'Arial', sans-serif;
+            width: ${panelWidth}px;
+            max-height: calc(${containerHeight}px - ${isTiny ? 12 : 16}px);
+            box-shadow: 0 0 ${isTiny ? 8 : 12}px rgba(0, 153, 255, 0.3);
+            z-index: 1000;
+            overflow-y: auto;
+            overflow-x: hidden;
+            backdrop-filter: blur(6px);
+
+            /* Custom scrollbar */
+            &::-webkit-scrollbar {
+                width: 2px;
+            }
+
+            &::-webkit-scrollbar-track {
+                background: rgba(0, 153, 255, 0.1);
+            }
+
+            &::-webkit-scrollbar-thumb {
+                background: rgba(0, 153, 255, 0.5);
+                border-radius: 1px;
+            }
+        `,
+        row: css`
+            margin-bottom: ${isTiny ? 4 : isSmall ? 6 : 8}px;
+            font-size: ${fontSize}px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: ${isTiny ? 4 : isSmall ? 5 : 6}px;
+            min-height: ${isTiny ? 16 : 18}px;
+            line-height: 1.2;
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+        `,
+        label: css`
+            color: #88ccff;
+            font-weight: 500;
+            white-space: nowrap;
+            flex-shrink: 0;
+            font-size: ${Math.max(fontSize - 1, 9)}px;
+        `,
+        value: css`
+            color: #ffffff;
+            font-weight: 600;
+            font-size: ${valueFontSize}px;
+            text-align: right;
+            word-break: break-word;
+            overflow-wrap: break-word;
+        `,
+        divider: css`
+            height: 1px;
+            background: rgba(0, 153, 255, 0.3);
+            margin: ${isTiny ? 3 : isSmall ? 4 : 6}px 0;
+        `,
+    };
 };
 
 /**
@@ -99,8 +124,14 @@ function formatDateTime(date: Date): string {
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
-export const InfoPanel: React.FC<RawCIFRBData> = ({ sumCIFRB, sumCIFRBIn10Min }) => {
+export const InfoPanel: React.FC<InfoPanelProps> = ({
+    sumCIFRB,
+    sumCIFRBIn10Min,
+    containerWidth,
+    containerHeight
+}) => {
     const [currentTime, setCurrentTime] = useState(new Date());
+    const styles = getPanelStyles(containerWidth, containerHeight);
 
     // Update time every second
     useEffect(() => {
@@ -114,19 +145,19 @@ export const InfoPanel: React.FC<RawCIFRBData> = ({ sumCIFRB, sumCIFRBIn10Min })
     return (
         <div className={styles.panel}>
             <div className={styles.row}>
-                <span className={styles.label}>Date Time:</span>
+                <span className={styles.label}>Ngày giờ:</span>
                 <span className={styles.value}>{formatDateTime(currentTime)}</span>
             </div>
 
             <div className={styles.divider} />
 
             <div className={styles.row}>
-                <span className={styles.label}>Total CIFRB:</span>
+                <span className={styles.label}>Tổng CIFRB:</span>
                 <span className={styles.value}>{formatNumber(sumCIFRB)}</span>
             </div>
 
             <div className={styles.row}>
-                <span className={styles.label}>CIFRB (10min):</span>
+                <span className={styles.label}>CIFRB (10 phút):</span>
                 <span className={styles.value}>{formatNumber(sumCIFRBIn10Min)}</span>
             </div>
         </div>
