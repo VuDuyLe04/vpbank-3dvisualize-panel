@@ -246,7 +246,7 @@ export const ThreeVisualize3D: React.FC<ThreeVisualize3DProps> = ({ width, heigh
             // Add label
             const labelDiv = createNodeLabelHTML(nodeData);
             const label = new CSS2DObject(labelDiv);
-            label.position.set(0, getNodeSize(nodeData.size, nodeData.isCenter) + 6, 0);
+            label.position.set(0, getNodeSize(nodeData.size, nodeData.isCenter) + 3, 0);
             mesh.add(label);
 
             nodeGroup.add(mesh);
@@ -293,7 +293,7 @@ export const ThreeVisualize3D: React.FC<ThreeVisualize3DProps> = ({ width, heigh
                 // Add label
                 const labelDiv = createNodeLabelHTML(nodeData);
                 const label = new CSS2DObject(labelDiv);
-                label.position.set(0, getNodeSize(nodeData.size, nodeData.isCenter) + 5, 0);
+                label.position.set(0, getNodeSize(nodeData.size, nodeData.isCenter) + 3, 0);
                 mesh.add(label);
 
                 nodeGroup.add(mesh);
