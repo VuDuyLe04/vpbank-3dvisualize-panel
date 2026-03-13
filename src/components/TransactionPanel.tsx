@@ -122,8 +122,14 @@ function formatNumber(num: number): string {
 }
 
 export const TransactionPanel: React.FC<TransactionPanelProps> = ({
-    sumTransactions,
-    sumTransactionsIn10Min,
+    right_metric1,
+    right_metric2,
+    right_metric3,
+    right_metric4,
+    nameRightMetric1,
+    nameRightMetric2,
+    nameRightMetric3,
+    nameRightMetric4,
     containerWidth,
     containerHeight
 }) => {
@@ -136,13 +142,21 @@ export const TransactionPanel: React.FC<TransactionPanelProps> = ({
             </div>
 
             <div className={styles.row}>
-                <span className={styles.label}>Tổng giao dịch:</span>
-                <span className={styles.value}>{formatNumber(sumTransactions)}</span>
+                <span className={styles.label}>{nameRightMetric1 || 'Metric 1'}:</span>
+                <span className={styles.value}>{formatNumber(right_metric1)}</span>
             </div>
 
             <div className={styles.row}>
-                <span className={styles.label}>Giao dịch (10 phút):</span>
-                <span className={styles.value}>{formatNumber(sumTransactionsIn10Min)}</span>
+                <span className={styles.label}>{nameRightMetric2 || 'Metric 2'}:</span>
+                <span className={styles.value}>{formatNumber(right_metric2)}</span>
+            </div>
+            <div className={styles.row}>
+                <span className={styles.label}>{nameRightMetric3 || 'Metric 3'}:</span>
+                <span className={styles.value}>{formatNumber(right_metric3)}</span>
+            </div>
+            <div className={styles.row}>
+                <span className={styles.label}>{nameRightMetric4 || 'Metric 4'}:</span>
+                <span className={styles.value}>{formatNumber(right_metric4)}</span>
             </div>
         </div>
     );

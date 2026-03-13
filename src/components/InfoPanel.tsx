@@ -125,8 +125,14 @@ function formatDateTime(date: Date): string {
 }
 
 export const InfoPanel: React.FC<InfoPanelProps> = ({
-    sumCIFRB,
-    sumCIFRBIn10Min,
+    left_metric1,
+    left_metric2,
+    left_metric3,
+    left_metric4,
+    nameLeftMetric1,
+    nameLeftMetric2,
+    nameLeftMetric3,
+    nameLeftMetric4,
     containerWidth,
     containerHeight
 }) => {
@@ -152,13 +158,23 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
             <div className={styles.divider} />
 
             <div className={styles.row}>
-                <span className={styles.label}>Tổng CIFRB:</span>
-                <span className={styles.value}>{formatNumber(sumCIFRB)}</span>
+                <span className={styles.label}>{nameLeftMetric1 || 'Metric 1'}:</span>
+                <span className={styles.value}>{formatNumber(left_metric1)}</span>
             </div>
 
             <div className={styles.row}>
-                <span className={styles.label}>CIFRB (10 phút):</span>
-                <span className={styles.value}>{formatNumber(sumCIFRBIn10Min)}</span>
+                <span className={styles.label}>{nameLeftMetric2 || 'Metric 2'}:</span>
+                <span className={styles.value}>{formatNumber(left_metric2)}</span>
+            </div>
+
+            <div className={styles.row}>
+                <span className={styles.label}>{nameLeftMetric3 || 'Metric 3'}:</span>
+                <span className={styles.value}>{formatNumber(left_metric3)}</span>
+            </div>
+
+            <div className={styles.row}>
+                <span className={styles.label}>{nameLeftMetric4 || 'Metric 4'}:</span>
+                <span className={styles.value}>{formatNumber(left_metric4)}</span>
             </div>
         </div>
     );

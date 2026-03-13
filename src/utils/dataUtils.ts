@@ -1,5 +1,5 @@
 import { DataFrame, Field } from '@grafana/data';
-import { RawNode3DData, NodeSize } from '../types';
+import { RawNode3DData, NodeSize, RawCIFRBData, RawTransactionsData } from '../types';
 
 /**
  * Parse Grafana DataFrame into RawNode3DData array
@@ -22,10 +22,14 @@ export function parseNodesFromDataFrame(dataFrames: DataFrame[]): RawNode3DData[
         const layerOrderField = findField(frame, 'layerOrder');
         const sizeField = findField(frame, 'size');
         const isCenterField = findField(frame, 'isCenter');
-        const cifrbField = findField(frame, 'cifrb');
-        const ccuField = findField(frame, 'ccu');
-        const transactionsField = findField(frame, 'transactions');
-        const transactionsIn10MinField = findField(frame, 'transactionsIn10Min');
+        const metric1 = findField(frame, 'metric1');
+        const metric2 = findField(frame, 'metric2');
+        const metric3 = findField(frame, 'metric3');
+        const metric4 = findField(frame, 'metric4');
+        const nameMetric1 = findField(frame, 'nameMetric1');
+        const nameMetric2 = findField(frame, 'nameMetric2');
+        const nameMetric3 = findField(frame, 'nameMetric3');
+        const nameMetric4 = findField(frame, 'nameMetric4');
 
         // Check if we have at least the essential fields to create nodes
         // If no id, label, or layerOrder field exists, skip this frame
@@ -41,20 +45,24 @@ export function parseNodesFromDataFrame(dataFrames: DataFrame[]): RawNode3DData[
                 layerOrder: layerOrderField ? Number(layerOrderField.values[i]) : 1,
                 size: sizeField ? parseNodeSize(String(sizeField.values[i])) : 'md',
                 isCenter: isCenterField ? Boolean(isCenterField.values[i]) : false,
+                nameMetric1: nameMetric1 ? String(nameMetric1.values[i]) : undefined,
+                nameMetric2: nameMetric2 ? String(nameMetric2.values[i]) : undefined,
+                nameMetric3: nameMetric3 ? String(nameMetric3.values[i]) : undefined,
+                nameMetric4: nameMetric4 ? String(nameMetric4.values[i]) : undefined,
             };
 
             // Add optional metrics
-            if (cifrbField) {
-                node.cifrb = Number(cifrbField.values[i]);
+            if (metric1) {
+                node.metric1 = Number(metric1.values[i]);
             }
-            if (ccuField) {
-                node.ccu = Number(ccuField.values[i]);
+            if (metric2) {
+                node.metric2 = Number(metric2.values[i]);
             }
-            if (transactionsField) {
-                node.transactions = Number(transactionsField.values[i]);
+            if (metric3) {
+                node.metric3 = Number(metric3.values[i]);
             }
-            if (transactionsIn10MinField) {
-                node.transactionsIn10Min = Number(transactionsIn10MinField.values[i]);
+            if (metric4) {
+                node.metric4 = Number(metric4.values[i]);
             }
 
             nodes.push(node);
@@ -69,7 +77,7 @@ export function parseNodesFromDataFrame(dataFrames: DataFrame[]): RawNode3DData[
  */
 function findField(frame: DataFrame, fieldName: string): Field | undefined {
     return frame.fields.find(
-        (f) => f.name.toLowerCase() === fieldName.toLowerCase()
+        (f) => f.name.toLowerCase().startsWith(fieldName.toLowerCase())
     );
 }
 
@@ -84,134 +92,76 @@ function parseNodeSize(value: string): NodeSize {
 }
 
 /**
- * Mock data for testing when no data source is available
- */
-export function getMockNodes(): RawNode3DData[] {
-    return [
-        {
-            id: 'center-t24',
-            label: 'T24',
-            layerOrder: 0,
-            size: 'lg',
-            isCenter: true,
-            cifrb: 15000000,
-            ccu: 8500,
-            transactions: 125000,
-            transactionsIn10Min: 2500,
-        },
-        {
-            id: 'neo',
-            label: 'NEO',
-            layerOrder: 1,
-            size: 'md',
-            cifrb: 3500000,
-            ccu: 1200,
-            transactions: 18000,
-            transactionsIn10Min: 350,
-        },
-        {
-            id: 'w4',
-            label: 'W4',
-            layerOrder: 1,
-            size: 'md',
-            cifrb: 2800000,
-            ccu: 950,
-            transactions: 15000,
-            transactionsIn10Min: 280,
-        },
-        {
-            id: 'los',
-            label: 'LOS',
-            layerOrder: 1,
-            size: 'sm',
-            cifrb: 1200000,
-            ccu: 450,
-            transactions: 8500,
-            transactionsIn10Min: 120,
-        },
-        {
-            id: 'biz',
-            label: 'BIZ',
-            layerOrder: 2,
-            size: 'md',
-            cifrb: 4200000,
-            ccu: 1500,
-            transactions: 22000,
-            transactionsIn10Min: 420,
-        },
-        {
-            id: 'ocb',
-            label: 'OCB',
-            layerOrder: 2,
-            size: 'sm',
-            cifrb: 1800000,
-            ccu: 680,
-            transactions: 11000,
-            transactionsIn10Min: 195,
-        },
-    ];
-}
-
-/**
- * Calculate total CIFRB from all nodes
- * @deprecated Use parseTransactionData instead if you have direct query results
- */
-export function calculateTransactionTotals(nodes: RawNode3DData[]): { sumCIFRB: number; sumCIFRBIn10Min: number } {
-    let sumCIFRB = 0;
-    let sumCIFRBIn10Min = 0;
-
-    nodes.forEach(node => {
-        if (node.cifrb !== undefined) {
-            sumCIFRB += node.cifrb;
-        }
-        // For now, using cifrb as proxy for 10min data
-        // Update this when you have actual cifrbIn10Min field
-        if (node.cifrb !== undefined) {
-            sumCIFRBIn10Min += node.cifrb * 0.1; // Example: 10% of total
-        }
-    });
-
-    return {
-        sumCIFRB,
-        sumCIFRBIn10Min
-    };
-}
-
-/**
  * Parse transaction data from DataFrame
  * Expects a DataFrame with fields: sumCIFRB, sumCIFRBIn10Min
  */
-export function parseTransactionData(dataFrames: DataFrame[]): { sumCIFRB: number; sumCIFRBIn10Min: number } {
+export function parseTransactionData(dataFrames: DataFrame[]): RawCIFRBData {
     // Default values
-    let sumCIFRB = 0;
-    let sumCIFRBIn10Min = 0;
+    let left_metric1 = 0;
+    let left_metric2 = 0;
+    let left_metric3 = 0;
+    let left_metric4 = 0;
+    let nameLeftMetric1 = 'Metric 1';
+    let nameLeftMetric2 = 'Metric 2';
+    let nameLeftMetric3 = 'Metric 3';
+    let nameLeftMetric4 = 'Metric 4';
 
     if (!dataFrames || dataFrames.length === 0) {
-        return { sumCIFRB, sumCIFRBIn10Min };
+        return { left_metric1, left_metric2, left_metric3, left_metric4 }; // Return empty array when no data
     }
 
     // Look for transaction data frame
     for (const frame of dataFrames) {
-        const sumCIFRBField = findField(frame, 'sumCIFRB');
-        const sumCIFRBIn10MinField = findField(frame, 'sumCIFRBIn10Min');
+        const left_metric1Field = findField(frame, 'leftmetric1');
+        const left_metric2Field = findField(frame, 'leftmetric2');
+        const left_metric3Field = findField(frame, 'leftmetric3');
+        const left_metric4Field = findField(frame, 'leftmetric4');
+        const nameLeftMetric1Field = findField(frame, 'nameLeftMetric1');
+        const nameLeftMetric2Field = findField(frame, 'nameLeftMetric2');
+        const nameLeftMetric3Field = findField(frame, 'nameLeftMetric3');
+        const nameLeftMetric4Field = findField(frame, 'nameLeftMetric4');
 
         // If we found the fields, get the values
-        if (sumCIFRBField && frame.length > 0) {
-            sumCIFRB = Number(sumCIFRBField.values[0]) || 0;
+        if (left_metric1Field && frame.length > 0) {
+            left_metric1 = Number(left_metric1Field.values[0]) || 0;
         }
-        if (sumCIFRBIn10MinField && frame.length > 0) {
-            sumCIFRBIn10Min = Number(sumCIFRBIn10MinField.values[0]) || 0;
+        if (left_metric2Field && frame.length > 0) {
+            left_metric2 = Number(left_metric2Field.values[0]) || 0;
+        }
+        if (left_metric3Field && frame.length > 0) {
+            left_metric3 = Number(left_metric3Field.values[0]) || 0;
+        }
+        if (left_metric4Field && frame.length > 0) {
+            left_metric4 = Number(left_metric4Field.values[0]) || 0;
+        }
+        if (nameLeftMetric1Field && frame.length > 0) {
+            nameLeftMetric1 = String(nameLeftMetric1Field.values[0]) || 'Metric 1';
+        }
+        if (nameLeftMetric2Field && frame.length > 0) {
+            nameLeftMetric2 = String(nameLeftMetric2Field.values[0]) || 'Metric 2';
+        }
+        if (nameLeftMetric3Field && frame.length > 0) {
+            nameLeftMetric3 = String(nameLeftMetric3Field.values[0]) || 'Metric 3';
+        }
+        if (nameLeftMetric4Field && frame.length > 0) {
+            nameLeftMetric4 = String(nameLeftMetric4Field.values[0]) || 'Metric 4';
         }
 
         // If we found both fields, we can stop searching
-        if (sumCIFRBField && sumCIFRBIn10MinField) {
+        if (left_metric1Field && left_metric2Field && left_metric3Field && left_metric4Field) {
             break;
         }
     }
 
     return {
-        sumCIFRB,
-        sumCIFRBIn10Min
+        left_metric1,
+        left_metric2,
+        left_metric3,
+        left_metric4,
+        nameLeftMetric1,
+        nameLeftMetric2,
+        nameLeftMetric3,
+        nameLeftMetric4
     };
 }
 
@@ -219,36 +169,67 @@ export function parseTransactionData(dataFrames: DataFrame[]): { sumCIFRB: numbe
  * Parse transactions data from DataFrame
  * Expects a DataFrame with fields: sumTransactions, sumTransactionsIn10Min
  */
-export function parseTransactionsData(dataFrames: DataFrame[]): { sumTransactions: number; sumTransactionsIn10Min: number } {
+export function parseTransactionsData(dataFrames: DataFrame[]): RawTransactionsData {
     // Default values
-    let sumTransactions = 0;
-    let sumTransactionsIn10Min = 0;
+    let right_metric1 = 0;
+    let right_metric2 = 0;
+    let right_metric3 = 0;
+    let right_metric4 = 0;
+    let nameRightMetric1 = 'Metric 1';
+    let nameRightMetric2 = 'Metric 2';
+    let nameRightMetric3 = 'Metric 3';
+    let nameRightMetric4 = 'Metric 4';
 
     if (!dataFrames || dataFrames.length === 0) {
-        return { sumTransactions, sumTransactionsIn10Min };
+        return { right_metric1, right_metric2, right_metric3, right_metric4 };
     }
 
     // Look for transactions data frame
     for (const frame of dataFrames) {
-        const sumTransactionsField = findField(frame, 'sumTransactions');
-        const sumTransactionsIn10MinField = findField(frame, 'sumTransactionsIn10Min');
-
+        const right_metric1Field = findField(frame, 'right_metric1');
+        const right_metric2Field = findField(frame, 'right_metric2');
+        const right_metric3Field = findField(frame, 'right_metric3');
+        const right_metric4Field = findField(frame, 'right_metric4');
+        const nameRightMetric1Field = findField(frame, 'nameRightMetric1');
+        const nameRightMetric2Field = findField(frame, 'nameRightMetric2');
+        const nameRightMetric3Field = findField(frame, 'nameRightMetric3');
+        const nameRightMetric4Field = findField(frame, 'nameRightMetric4');
         // If we found the fields, get the values
-        if (sumTransactionsField && frame.length > 0) {
-            sumTransactions = Number(sumTransactionsField.values[0]) || 0;
+        if (right_metric1Field && frame.length > 0) {
+            right_metric1 = Number(right_metric1Field.values[0]) || 0;
         }
-        if (sumTransactionsIn10MinField && frame.length > 0) {
-            sumTransactionsIn10Min = Number(sumTransactionsIn10MinField.values[0]) || 0;
+        if (right_metric2Field && frame.length > 0) {
+            right_metric2 = Number(right_metric2Field.values[0]) || 0;
+        }
+        if (right_metric3Field && frame.length > 0) {
+            right_metric3 = Number(right_metric3Field.values[0]) || 0;
+        }
+        if (right_metric4Field && frame.length > 0) {
+            right_metric4 = Number(right_metric4Field.values[0]) || 0;
+        }
+        if (nameRightMetric1Field && frame.length > 0) {
+            nameRightMetric1 = String(nameRightMetric1Field.values[0]) || 'Metric 1';
+        }
+        if (nameRightMetric2Field && frame.length > 0) {
+            nameRightMetric2 = String(nameRightMetric2Field.values[0]) || 'Metric 2';
+        }
+        if (nameRightMetric3Field && frame.length > 0) {
+            nameRightMetric3 = String(nameRightMetric3Field.values[0]) || 'Metric 3';
+        }
+        if (nameRightMetric4Field && frame.length > 0) {
+            nameRightMetric4 = String(nameRightMetric4Field.values[0]) || 'Metric 4';
         }
 
         // If we found both fields, we can stop searching
-        if (sumTransactionsField && sumTransactionsIn10MinField) {
+        if (right_metric1Field && right_metric2Field && right_metric3Field && right_metric4Field) {
             break;
         }
     }
 
     return {
-        sumTransactions,
-        sumTransactionsIn10Min
+        right_metric1,
+        right_metric2,
+        right_metric3,
+        right_metric4
     };
 }

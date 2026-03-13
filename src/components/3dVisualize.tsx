@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls';
 import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer';
 import { css } from '@emotion/css';
-import { RawNode3DData } from '../types';
+import { RawCIFRBData, RawNode3DData, RawTransactionsData } from '../types';
 import { createNodeMesh, createNodeLabelHTML, getNodeSize } from './Node3D';
 import { InfoPanel } from './InfoPanel';
 import { TransactionPanel } from './TransactionPanel';
@@ -13,8 +13,8 @@ interface ThreeVisualize3DProps {
     height: number;
     nodes: RawNode3DData[];
     numberOfLayers: number;
-    transactionData: { sumCIFRB: number; sumCIFRBIn10Min: number };
-    transactionsData: { sumTransactions: number; sumTransactionsIn10Min: number };
+    transactionData: RawCIFRBData;
+    transactionsData: RawTransactionsData;
 }
 
 const styles = {
@@ -305,14 +305,18 @@ export const ThreeVisualize3D: React.FC<ThreeVisualize3DProps> = ({ width, heigh
     return (
         <div ref={containerRef} className={styles.container}>
             <InfoPanel
-                sumCIFRB={transactionData.sumCIFRB}
-                sumCIFRBIn10Min={transactionData.sumCIFRBIn10Min}
+                left_metric1={transactionData.left_metric1}
+                left_metric2={transactionData.left_metric2}
+                left_metric3={transactionData.left_metric3}
+                left_metric4={transactionData.left_metric4}
                 containerWidth={width}
                 containerHeight={height}
             />
             <TransactionPanel
-                sumTransactions={transactionsData.sumTransactions}
-                sumTransactionsIn10Min={transactionsData.sumTransactionsIn10Min}
+                right_metric1={transactionsData.right_metric1}
+                right_metric2={transactionsData.right_metric2}
+                right_metric3={transactionsData.right_metric3}
+                right_metric4={transactionsData.right_metric4}
                 containerWidth={width}
                 containerHeight={height}
             />

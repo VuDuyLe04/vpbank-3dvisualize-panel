@@ -123,17 +123,17 @@ export function createNodeLabelHTML(nodeData: RawNode3DData): HTMLDivElement {
 
     // Add metrics if available
     const metrics: string[] = [];
-    if (nodeData.cifrb !== undefined && !nodeData.isCenter) {
-        metrics.push(`CIFRB: ${formatNumber(nodeData.cifrb)}`);
+    if (nodeData.metric1 !== undefined && !nodeData.isCenter) {
+        metrics.push(`${nodeData.nameMetric1 || 'Metric 1'}: ${formatNumber(nodeData.metric1)}`);
     }
-    if (nodeData.ccu !== undefined && !nodeData.isCenter) {
-        metrics.push(`CCU: ${formatNumber(nodeData.ccu)}`);
+    if (nodeData.metric2 !== undefined && !nodeData.isCenter) {
+        metrics.push(`${nodeData.nameMetric2 || 'Metric 2'}: ${formatNumber(nodeData.metric2)}`);
     }
-    if (nodeData.transactions !== undefined && !nodeData.isCenter) {
-        metrics.push(`Trans: ${formatNumber(nodeData.transactions)}`);
+    if (nodeData.metric3 !== undefined && !nodeData.isCenter) {
+        metrics.push(`${nodeData.nameMetric3 || 'Metric 3'}: ${formatNumber(nodeData.metric3)}`);
     }
-    if (nodeData.transactionsIn10Min !== undefined && !nodeData.isCenter) {
-        metrics.push(`10min: ${formatNumber(nodeData.transactionsIn10Min)}`);
+    if (nodeData.metric4 !== undefined && !nodeData.isCenter) {
+        metrics.push(`${nodeData.nameMetric4 || 'Metric 4'}: ${formatNumber(nodeData.metric4)}`);
     }
 
     if (metrics.length > 0) {
